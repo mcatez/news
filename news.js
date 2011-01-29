@@ -4,7 +4,7 @@
  * 
  * Distributed under an MIT-style license
  */
-var news = { version: '0.5.00' };
+var news = { version: '0.5.10' };
 (function() {
     
     var news = this.news,

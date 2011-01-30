@@ -23,6 +23,8 @@ var news = { version: '0.5.20' };
         this.type = oDatas.type;
         this.label = oDatas.label;
         this.propagation = (oDatas.propagation !== false);
+        this.stopped = false;
+        this.prevented = false;
         this.source = oDatas.source || null;
         this.data = oDatas.data || {};
         this.creationTime = (new Date()).getTime();
@@ -154,7 +156,7 @@ var news = { version: '0.5.20' };
                 oListener;
             while(++i < l) {
                 oListener = aReg[i];
-                oListener.fn.call(oListener.context || oListener.source || null, oNews);
+                oListener.fn.call(oListener.context || oNews.source || null, oNews);
                 if(oNews.stopped === true) {
                     break;
                 }
@@ -184,8 +186,9 @@ var news = { version: '0.5.20' };
                     execHandlers(oNews, oType['>*']);
                 }
             }
+            return (oNews.prevented !== true);
         }
-        return news;
+        return true;
     };
     
     news.subscribe = subscribe;

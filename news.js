@@ -4,7 +4,7 @@
  * 
  * Distributed under an MIT-style license
  */
-var news = { version: '0.5.10' };
+var news = { version: '0.5.20' };
 (function() {
     
     var news = this.news,
@@ -18,10 +18,11 @@ var news = { version: '0.5.10' };
         removeHandlersMain,
         removeHandlers,
         execHandlers;
-    news.oReg = oReg;
+    
     Notification = function(oDatas) {
         this.type = oDatas.type;
         this.label = oDatas.label;
+        this.propagation = (oDatas.propagation !== false);
         this.source = oDatas.source || null;
         this.data = oDatas.data || {};
         this.creationTime = (new Date()).getTime();

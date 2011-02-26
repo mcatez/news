@@ -1,11 +1,11 @@
 /*!
- * news v0.5.3, a JavaScript notification library
+ * news v0.5.6, a JavaScript notification library
  * Copyright (C) 2011 Manuel Catez
  * 
  * Distributed under an MIT-style license
  * See https://github.com/mcatez/news
  */
-var news = { version: '0.5.3' };
+var news = { version: '0.5.6' };
 (function() {
     
     var news = this.news,
@@ -14,7 +14,9 @@ var news = { version: '0.5.3' };
         oReg = {},
         Notification,
         subscribe,
+        subscribeAll,
         unsubscribe,
+        unsubscribeAll,
         publish,
         removeHandlersMain,
         removeHandlers,
@@ -28,12 +30,16 @@ var news = { version: '0.5.3' };
         this.prevented = false;
         this.source = oDatas.source || null;
         this.data = oDatas.data || {};
-        this.creationTime = (new Date()).getTime();
+        this.timeStamp = (new Date()).getTime();
     };
     Notification.prototype = {
         stopPropagation: function(bNow) {
             this.propagation = false;
-            this.stopped = (bNow === true);
+        },
+        
+        stopImmediatePropagation: function() {
+            this.propagation = false;
+            this.stopped = true;
         },
         
         preventDefault: function() {
@@ -41,35 +47,48 @@ var news = { version: '0.5.3' };
         }
     };
     
-    subscribe = function(sNews, fn, oContext) {
+    subscribe = function(sNews, fHandler, oContext) {
         var aTokens = sNews.match(reSubscribe);
         if(aTokens) {
             var sType = aTokens[1],
                 sNamespace = aTokens[2] || '@!',
                 sLabel = aTokens[3],
-                oData = { fn: fn, ns: sNamespace, context: oContext },
+                oData = { handler: fHandler, ns: sNamespace, context: oContext },
                 oType = oReg[sType],
                 oActions;
             if(!oType) {
-                oType = oReg[sType] = {};
+                oType = oReg[sType] = { count: 0 };
             }
             oActions = oType[sLabel];
             if(oActions) {
                 oActions[oActions.length] = oData;
-                oType.count = 1;
             } else {
                 oType[sLabel] = [ oData ];
-                oType.count++;
             }
+            oType.count++;
         } else {
             publish({
                 type: 'error',
                 label: 'news.subscribe',
-                data: { message: 'Incorrect news name: ' + sNews },
-                propagation: false
+                data: { message: 'Incorrect news name: ' + sNews }
             });
         }
-        return news;
+    };
+    
+    subscribeAll = function() {
+        var sType = typeof arguments[0],
+            i, l, oDatas;
+        if(sType === 'string') {
+            subscribe(arguments[0], arguments[1], arguments[2]);
+        } else if(sType === 'object' && arguments[0]) {
+            i = -1;
+            l = arguments.length;
+            while(++i < l) {
+                oDatas = arguments[i];
+                console.log(oDatas);
+                subscribe(oDatas.name, oDatas.handler, oDatas.context);
+            }
+        }
     };
     
     removeHandlersMain = function(oType, sLabel, sNamespace) {
@@ -142,12 +161,17 @@ var news = { version: '0.5.3' };
                 publish({
                     type: 'error',
                     label: 'news.unsubscribe',
-                    data: { message: 'Incorrect news name: ' + sNews },
-                    propagation: false
+                    data: { message: 'Incorrect news name: ' + sNews }
                 });
             }
         }
-        return news;
+    };
+    
+    unsubscribeAll = function() {
+        var i = arguments.length;
+        while(i--) {
+            unsubscribe(arguments[i]);
+        }
     };
     
     execHandlers = function(oNews, aReg) {
@@ -157,7 +181,7 @@ var news = { version: '0.5.3' };
                 oListener;
             while(++i < l) {
                 oListener = aReg[i];
-                oListener.fn.call(oListener.context || oNews.source || null, oNews);
+                oListener.handler.call(oListener.context || oNews.source || null, oNews);
                 if(oNews.stopped === true) {
                     break;
                 }
@@ -192,8 +216,8 @@ var news = { version: '0.5.3' };
         return true;
     };
     
-    news.subscribe = subscribe;
-    news.unsubscribe = unsubscribe;
+    news.subscribe = subscribeAll;
+    news.unsubscribe = unsubscribeAll;
     news.publish = publish;
     
 }());

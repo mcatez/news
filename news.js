@@ -1,11 +1,11 @@
 /*!
- * news v0.5.6, a JavaScript notification library
+ * news v0.5.7, a JavaScript notification library
  * Copyright (C) 2011 Manuel Catez
  * 
  * Distributed under an MIT-style license
  * See https://github.com/mcatez/news
  */
-var news = { version: '0.5.6' };
+var news = { version: '0.5.7' };
 (function() {
     
     var news = this.news,
@@ -33,7 +33,7 @@ var news = { version: '0.5.6' };
         this.timeStamp = (new Date()).getTime();
     };
     Notification.prototype = {
-        stopPropagation: function(bNow) {
+        stopPropagation: function() {
             this.propagation = false;
         },
         
@@ -53,7 +53,7 @@ var news = { version: '0.5.6' };
             var sType = aTokens[1],
                 sNamespace = aTokens[2] || '@!',
                 sLabel = aTokens[3],
-                oData = { handler: fHandler, ns: sNamespace, context: oContext },
+                oDatas = { handler: fHandler, ns: sNamespace, context: oContext },
                 oType = oReg[sType],
                 oActions;
             if(!oType) {
@@ -61,9 +61,9 @@ var news = { version: '0.5.6' };
             }
             oActions = oType[sLabel];
             if(oActions) {
-                oActions[oActions.length] = oData;
+                oActions[oActions.length] = oDatas;
             } else {
-                oType[sLabel] = [ oData ];
+                oType[sLabel] = [ oDatas ];
             }
             oType.count++;
         } else {

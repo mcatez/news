@@ -1,10 +1,11 @@
 /*!
- * news, a JavaScript notification library
+ * news v0.5.3, a JavaScript notification library
  * Copyright (C) 2011 Manuel Catez
  * 
  * Distributed under an MIT-style license
+ * See https://github.com/mcatez/news
  */
-var news = { version: '0.5.20' };
+var news = { version: '0.5.3' };
 (function() {
     
     var news = this.news,
@@ -64,7 +65,7 @@ var news = { version: '0.5.20' };
             publish({
                 type: 'error',
                 label: 'news.subscribe',
-                message: 'Incorrect news name: ' + sNews,
+                data: { message: 'Incorrect news name: ' + sNews },
                 propagation: false
             });
         }
@@ -141,7 +142,7 @@ var news = { version: '0.5.20' };
                 publish({
                     type: 'error',
                     label: 'news.unsubscribe',
-                    message: 'Incorrect news name: ' + sNews,
+                    data: { message: 'Incorrect news name: ' + sNews },
                     propagation: false
                 });
             }
